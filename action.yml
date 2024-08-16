@@ -9,15 +9,36 @@ branding:
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  mode:
+    description: 'Mode of operation'
     required: true
-    default: '1000'
-
-# Define your outputs here.
-outputs:
-  time:
-    description: 'Your output description here'
+  token:
+    description: 'GitHub token'
+    default: '${{ github.token }}'
+  release-tags:
+    description: 'Release tags'
+    required: true
+  owner:
+    description: 'Repository owner'
+    default: '${{ github.repository_owner }}'
+  repo:
+    description: 'Repository name'
+    default: '${{ github.repository }}'
+  max-attempts:
+    description: 'Maximum number of attempts'
+    default: '3'
+  release-webhook-url:
+    description: 'Release webhook URL'
+    required: true
+  version:
+    description: 'Version'
+    required: true
+  environment:
+    description: 'Environment'
+    required: true
+  project-name:
+    description: 'Project name'
+    required: true
 
 runs:
   using: node20
