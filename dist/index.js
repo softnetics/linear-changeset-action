@@ -43522,17 +43522,21 @@ function parseIssueFromReleaseBody(body) {
     });
 }
 async function releaseMode() {
-    const releasesTags = core.getInput('releases-tags', { trimWhitespace: true });
+    const releasesTags = core.getInput('release-tags', { trimWhitespace: true });
     core.debug(`Release tags: ${releasesTags}`);
     const parsedReleaseTags = parseReleaseTags(releasesTags);
     core.debug(`Parsed release tags: ${parsedReleaseTags}`);
+    if (!parsedReleaseTags.length) {
+        core.info('No releases to fetch');
+        return;
+    }
     const octokit = new Octokit({ auth: core.getInput('token') });
     const { results, errors } = await dist_default().withConcurrency(2)
         .for(parsedReleaseTags)
         .process(async (tag) => {
         const release = octokit.rest.repos.getReleaseByTag({
             owner: core.getInput('owner'),
-            repo: core.getInput('repo'),
+            repo: core.getInput('repo').split('/')[1],
             tag
         });
         core.debug(`Fetched release: ${tag}`);
@@ -43541,6 +43545,9 @@ async function releaseMode() {
     core.info(`Fetched releases: ${results.length}, errors: ${errors.length}`);
     if (errors.length) {
         core.setFailed(`Failed to fetch releases: ${errors.length}`);
+        for (const error of errors) {
+            core.error(error);
+        }
         return;
     }
     const issues = new Set();
@@ -43581,15 +43588,31 @@ async function releaseMode() {
 
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-const mode = core.getInput('mode');
-switch (mode) {
-    case 'release':
-        releaseMode();
-        break;
-    default:
-        core.setFailed(`Unknown mode: ${mode}`);
-        break;
+async function run() {
+    const mode = core.getInput('mode');
+    const maxAttempts = parseInt(core.getInput('max-attempts'));
+    let attempt = maxAttempts;
+    while (attempt--) {
+        if (attempt < maxAttempts - 1) {
+            core.info(`Retrying in 5 seconds...`);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+        try {
+            switch (mode) {
+                case 'release':
+                    releaseMode();
+                    break;
+                default:
+                    core.setFailed(`Unknown mode: ${mode}`);
+                    return;
+            }
+        }
+        catch (error) {
+            core.error(error);
+        }
+    }
 }
+run();
 
 })();
 

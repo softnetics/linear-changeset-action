@@ -36,11 +36,16 @@ export function parseIssueFromReleaseBody(
 }
 
 export async function releaseMode(): Promise<void> {
-  const releasesTags = core.getInput('releases-tags', { trimWhitespace: true })
+  const releasesTags = core.getInput('release-tags', { trimWhitespace: true })
   core.debug(`Release tags: ${releasesTags}`)
   const parsedReleaseTags = parseReleaseTags(releasesTags)
 
   core.debug(`Parsed release tags: ${parsedReleaseTags}`)
+
+  if (!parsedReleaseTags.length) {
+    core.info('No releases to fetch')
+    return
+  }
 
   const octokit = new Octokit({ auth: core.getInput('token') })
   const { results, errors } = await PromisePool.withConcurrency(2)
@@ -48,7 +53,7 @@ export async function releaseMode(): Promise<void> {
     .process(async tag => {
       const release = octokit.rest.repos.getReleaseByTag({
         owner: core.getInput('owner'),
-        repo: core.getInput('repo'),
+        repo: core.getInput('repo').split('/')[1],
         tag
       })
       core.debug(`Fetched release: ${tag}`)
@@ -59,6 +64,9 @@ export async function releaseMode(): Promise<void> {
 
   if (errors.length) {
     core.setFailed(`Failed to fetch releases: ${errors.length}`)
+    for (const error of errors) {
+      core.error(error)
+    }
     return
   }
 
