@@ -29,6 +29,8 @@ export function parseIssueFromReleaseBody(
   const matchedIssueUrls = body.match(IssueUrlPattern)
   if (!matchedIssueUrls) return []
   return matchedIssueUrls.map(url => {
+    const IssueUrlPattern =
+      /\(https:\/\/linear.app\/(?<workspace>\w+)\/issue\/(?<issue>.*)\/(?<title>.*)\)/g
     return IssueUrlPattern.exec(url)?.groups
   }) as any
 }
