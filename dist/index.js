@@ -43517,11 +43517,13 @@ function parseIssueFromReleaseBody(body) {
     if (!matchedIssueUrls)
         return [];
     return matchedIssueUrls.map(url => {
+        const IssueUrlPattern = /\(https:\/\/linear.app\/(?<workspace>\w+)\/issue\/(?<issue>.*)\/(?<title>.*)\)/g;
         return IssueUrlPattern.exec(url)?.groups;
     });
 }
 async function releaseMode() {
     const releasesTags = core.getInput('releases-tags', { trimWhitespace: true });
+    core.debug(`Release tags: ${releasesTags}`);
     const parsedReleaseTags = parseReleaseTags(releasesTags);
     core.debug(`Parsed release tags: ${parsedReleaseTags}`);
     const octokit = new Octokit({ auth: core.getInput('token') });

@@ -37,6 +37,7 @@ export function parseIssueFromReleaseBody(
 
 export async function releaseMode(): Promise<void> {
   const releasesTags = core.getInput('releases-tags', { trimWhitespace: true })
+  core.debug(`Release tags: ${releasesTags}`)
   const parsedReleaseTags = parseReleaseTags(releasesTags)
 
   core.debug(`Parsed release tags: ${parsedReleaseTags}`)
