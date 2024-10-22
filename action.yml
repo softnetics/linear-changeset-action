@@ -33,11 +33,8 @@ inputs:
   version:
     description: 'Version'
     required: true
-  environment:
-    description: 'Environment'
-    required: true
-  project-name:
-    description: 'Project name'
+  project-id:
+    description: 'Project Id'
     required: true
 
 runs:

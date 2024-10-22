@@ -1,13 +1,30 @@
 import * as core from '@actions/core'
 import PromisePool from '@supercharge/promise-pool'
 import { Octokit } from 'octokit'
-import { array, parse, string } from 'valibot'
+import { array, InferOutput, object, parse, string } from 'valibot'
 
-const ReleaseTagsSchema = array(string())
+const ReleaseTags = array(string())
+
+const ReleaseIssuesBody = object({
+  projectId: string(),
+  apps: array(
+    object({
+      appName: string(),
+      issues: array(
+        object({
+          version: string(),
+          issueId: string(),
+          rawText: string()
+        })
+      )
+    })
+  )
+})
+type ReleaseIssuesBody = InferOutput<typeof ReleaseIssuesBody>
 
 function parseReleaseTags(string: string) {
   try {
-    return parse(ReleaseTagsSchema, JSON.parse(string))
+    return parse(ReleaseTags, JSON.parse(string))
   } catch (error) {
     core.setFailed(`Failed to parse releases-tags`)
     throw error
@@ -18,6 +35,7 @@ type ParsedIssue = {
   workspace: string
   issue: string
   title: string
+  url: string
 }
 
 export function parseIssueFromReleaseBody(
@@ -31,7 +49,10 @@ export function parseIssueFromReleaseBody(
   return matchedIssueUrls.map(url => {
     const IssueUrlPattern =
       /\(https:\/\/linear.app\/(?<workspace>\w+)\/issue\/(?<issue>.*)\/(?<title>.*)\)/g
-    return IssueUrlPattern.exec(url)?.groups
+    return {
+      ...IssueUrlPattern.exec(url)?.groups,
+      url
+    }
   }) as any
 }
 
@@ -70,14 +91,34 @@ export async function releaseMode(): Promise<void> {
     return
   }
 
-  const issues = new Set<string>()
+  const releaseIssues: ReleaseIssuesBody['apps'] = []
+
   for (const {
-    data: { body }
+    data: { body, tag_name }
   } of results) {
     if (!body) continue
+    // TODO: Add support for poly repos
+    const version = tag_name.split('@').at(-1)!
+    const appName = tag_name.split('@').slice(0, -1).join('@')
+    const issues = new Set<string>()
+    const issuesMap = new Map<string, ParsedIssue>()
+    const app: ReleaseIssuesBody['apps'][0] = {
+      appName,
+      issues: []
+    }
     for (const issue of parseIssueFromReleaseBody(body)) {
       issues.add(issue.issue)
+      issuesMap.set(issue.issue, issue)
     }
+    app.issues = Array.from(issues).map(issueId => {
+      const { url } = issuesMap.get(issueId)!
+      return {
+        issueId,
+        version,
+        rawText: url
+      }
+    })
+    releaseIssues.push(app)
   }
 
   const releaseWebhookUrl = core.getInput('release-webhook-url')
@@ -89,12 +130,8 @@ export async function releaseMode(): Promise<void> {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      data: {
-        version: core.getInput('version'),
-        environment: core.getInput('environment'),
-        projectName: core.getInput('project-name'),
-        issues: Array.from(issues).map(issueId => ({ issueId }))
-      }
+      projectId: core.getInput('project-id'),
+      apps: releaseIssues
     })
   })
 
