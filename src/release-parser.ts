@@ -15,9 +15,6 @@ export function parseRelease(
   if (!matchedIssueUrls) return []
 
   return matchedIssueUrls.map(url => {
-    const IssueUrlPattern =
-      /\(https:\/\/linear.app\/(?<workspace>\w+)\/issue\/(?<issue>.*)\/(?<title>.*)\)/g
-
     const _url = url.slice(1, -1)
 
     const group = IssueUrlPattern.exec(url)?.groups

@@ -23,8 +23,8 @@ inputs:
   max-attempts:
     description: 'Maximum number of attempts'
     default: '3'
-  webhook-url:
-    description: 'Release webhook URL'
+  lc-server-url:
+    description: Linear Changeset server URL
     required: true
     default: 'https://linear-changeset-server.vercel.app'
 

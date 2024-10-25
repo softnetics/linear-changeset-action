@@ -33,5 +33,5 @@ jobs:
           repository: ${{ github.repository }}
           token: ${{ github.token }}
           max-attempts: 3
-          webhook-url: 'https://linear-changeset-server.vercel.app'
+          lc-server-url: 'https://linear-changeset-server.vercel.app'
 ```

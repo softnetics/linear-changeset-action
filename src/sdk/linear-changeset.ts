@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import { array, InferOutput, object, string } from 'valibot'
+import { array, type InferOutput, object, string } from 'valibot'
 
 const LinearChangesetSdkReleaseIssuesBody = object({
   projectId: string(),
