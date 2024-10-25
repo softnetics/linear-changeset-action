@@ -38,11 +38,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check Format
-        run: pnpm format:check
+      - name: Build
+        run: pnpm build
 
-      - name: Lint
-        run: pnpm lint
-
-      - name: Test
-        run: pnpm test
+      - name: Add, commit and push to the repository
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: update dist files
