@@ -23,10 +23,10 @@ inputs:
   max-attempts:
     description: 'Maximum number of attempts'
     default: '3'
-
   webhook-url:
     description: 'Release webhook URL'
     required: true
+    default: 'https://linear-changeset-server.vercel.app'
 
 runs:
   using: node20
