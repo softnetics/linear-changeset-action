@@ -5,7 +5,7 @@
     "module": "ESNext",
     "rootDir": "./src",
     "moduleResolution": "Bundler",
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

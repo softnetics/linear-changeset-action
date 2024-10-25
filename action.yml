@@ -1,6 +1,6 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: Linear Changeset Action
+description: Action for linear changeset
+author: Softnetics
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
@@ -9,32 +9,23 @@ branding:
 
 # Define your inputs here.
 inputs:
-  mode:
-    description: 'Mode of operation'
+  # Required
+  project-id:
+    description: 'Project Id'
     required: true
+  # Optional
+  repository:
+    description: 'Repository name'
+    default: '${{ github.repository }}'
   token:
     description: 'GitHub token'
     default: '${{ github.token }}'
-  release-tags:
-    description: 'Release tags'
-    required: true
-  owner:
-    description: 'Repository owner'
-    default: '${{ github.repository_owner }}'
-  repo:
-    description: 'Repository name'
-    default: '${{ github.repository }}'
   max-attempts:
     description: 'Maximum number of attempts'
     default: '3'
-  release-webhook-url:
+
+  webhook-url:
     description: 'Release webhook URL'
-    required: true
-  version:
-    description: 'Version'
-    required: true
-  project-id:
-    description: 'Project Id'
     required: true
 
 runs:

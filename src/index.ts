@@ -1,28 +1,31 @@
-/**
- * The entrypoint for the action.
- */
-import { releaseMode } from './main'
 import * as core from '@actions/core'
+import { ReleaseTracker } from './release'
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
 async function run() {
-  const mode = core.getInput('mode')
-  const maxAttempts = parseInt(core.getInput('max-attempts'))
-  let attempt = maxAttempts
-  while (attempt--) {
-    if (attempt < maxAttempts - 1) {
-      core.info(`Retrying in 5 seconds...`)
-      await new Promise(resolve => setTimeout(resolve, 5000))
-    }
+  const inputs = {
+    // Required inputs
+    projectId: core.getInput('project-id', { required: true }),
+    repository: core.getInput('repository') ?? process.env.GITHUB_REPOSITORY,
+
+    // Optional
+    token: core.getInput('token') ?? process.env.GITHUB_TOKEN,
+    maxAttempts: core.getInput('max-attempts') ?? '3',
+    linearChangesetServer:
+      core.getInput('lc-server-url') ??
+      'https://linear-changeset-server.vercel.app'
+  }
+
+  const releaseTracker = new ReleaseTracker({
+    projectId: inputs.projectId,
+    repository: inputs.repository,
+    token: inputs.token,
+    serverUrl: inputs.linearChangesetServer
+  })
+
+  for (let attempt = 0; attempt < parseInt(inputs.maxAttempts); attempt++) {
     try {
-      switch (mode) {
-        case 'release':
-          releaseMode()
-          break
-        default:
-          core.setFailed(`Unknown mode: ${mode}`)
-          return
-      }
+      core.info(`Processing release... (Attempt ${attempt + 1})`)
+      await releaseTracker.process()
     } catch (error: any) {
       core.error(error)
     }
