@@ -44257,17 +44257,19 @@ class LinearChangesetSdk {
             body: JSON.stringify(body)
         });
     }
-    async getTags() {
-        core.info(`Fetching tags from ${this.url}/api/release/tags`);
-        const response = await fetch(`${this.url}/api/release/tags`, {
+    async getProjectTags(projectId) {
+        const url = new URL(`${this.url}/api/release/versions`);
+        url.searchParams.append('projectId', projectId);
+        core.info(`Fetching tags from ${url.toString()}`);
+        const response = await fetch(url, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
         const json = (await response.json());
-        json.tags.forEach(tag => {
-            core.info(`Found tag: ${tag}`);
+        json.releases.forEach(r => {
+            core.info(`Found tag: ${r.appName} ${r.version}`);
         });
-        return json.tags;
+        return json.releases.map(r => `${r.appName}@${r.version}`);
     }
 }
 
@@ -44329,11 +44331,11 @@ class ReleaseTracker {
         return tags;
     }
     async fetchReleases(tags) {
+        const owner = this.config.repository.split('/')[0];
+        const repoName = this.config.repository.split('/').slice(1).join('/');
         const { results, errors } = await dist_default().withConcurrency(2)
             .for(tags)
             .process(async (tag) => {
-            const owner = this.config.repository.split('/')[0];
-            const repoName = this.config.repository.split('/').slice(1).join('/');
             core.debug(`Fetched release: ${tag}`);
             const release = await this.octokit.rest.repos.getReleaseByTag({
                 owner: owner,
@@ -44381,7 +44383,7 @@ class ReleaseTracker {
     }
     async process() {
         const [stampedTags, githubTags] = await Promise.all([
-            this.lcSdk.getTags(),
+            this.lcSdk.getProjectTags(this.config.projectId),
             this.fetchAllTags()
         ]);
         const filterredTags = d(stampedTags, githubTags);
