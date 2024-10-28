@@ -128,7 +128,7 @@ export class ReleaseTracker {
 
       for (const batch of batches) {
         core.info(`Sending batch of ${batch.length} issues`)
-        core.info(`Issues: ${JSON.stringify(batch)}`)
+        core.info(`Issues: ${JSON.stringify(batch, null, 2)}`)
 
         await this.lcSdk.releaseIssues({
           projectId: this.config.projectId,
