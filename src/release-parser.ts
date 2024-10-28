@@ -17,7 +17,10 @@ export function parseRelease(
   return matchedIssueUrls.map(url => {
     const _url = url.slice(1, -1)
 
-    const group = IssueUrlPattern.exec(url)?.groups
+    const urlPattern =
+      /https:\/\/linear.app\/(?<workspace>\w+)\/issue\/(?<issue>.*)\/(?<title>.*)/g
+
+    const group = urlPattern.exec(_url)?.groups
 
     return {
       workspace: group?.workspace,

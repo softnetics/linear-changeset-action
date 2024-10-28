@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test:ci": "vitest",
+    "test": "vitest",
     "format:check": "npx prettier --check .",
     "lint": "eslint ."
   },
