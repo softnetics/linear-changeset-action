@@ -108,6 +108,9 @@ export class ReleaseTracker {
       this.fetchAllTags()
     ])
 
+    console.log('stampedTags', stampedTags)
+    console.log('githubTags', githubTags)
+
     const filterredTags = R.difference(stampedTags, githubTags)
 
     if (filterredTags.length <= 0) {

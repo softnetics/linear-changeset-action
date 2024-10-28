@@ -27,6 +27,7 @@ export async function run() {
       try {
         core.info(`Processing release... (Attempt ${attempt + 1})`)
         await releaseTracker.process()
+        break
       } catch (error: any) {
         core.error(error)
       }

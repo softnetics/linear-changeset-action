@@ -44396,6 +44396,8 @@ class ReleaseTracker {
             this.lcSdk.getProjectTags(this.config.projectId),
             this.fetchAllTags()
         ]);
+        console.log('stampedTags', stampedTags);
+        console.log('githubTags', githubTags);
         const filterredTags = d(stampedTags, githubTags);
         if (filterredTags.length <= 0) {
             core.info('No tags to stamp to Linear');
@@ -44434,6 +44436,7 @@ async function run() {
             try {
                 core.info(`Processing release... (Attempt ${attempt + 1})`);
                 await releaseTracker.process();
+                break;
             }
             catch (error) {
                 core.error(error);
