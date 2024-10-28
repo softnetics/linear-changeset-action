@@ -25,9 +25,14 @@ export class ReleaseTracker {
   }
 
   async fetchAllTags(): Promise<string[]> {
-    const response = await this.octokit.request(
-      `GET /repos/${this.config.repository}/git/ref/tags`
-    )
+    const owner = this.config.repository.split('/')[0]
+    const repoName = this.config.repository.split('/').slice(1).join('/')
+
+    const response = await this.octokit.rest.git.listMatchingRefs({
+      owner: owner,
+      repo: repoName,
+      ref: 'tags'
+    })
 
     const tags = (response.data as { ref: string }[]).map(tag =>
       tag.ref.replace('refs/tags/', '')

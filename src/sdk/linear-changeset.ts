@@ -58,6 +58,11 @@ export class LinearChangesetSdk {
 
     const json = (await response.json()) as GetProjectVersionsResponse
 
+    if (!json.releases) {
+      core.info(`No tags found`)
+      return []
+    }
+
     json.releases.forEach(r => {
       core.info(`Found tag: ${r.appName} ${r.version}`)
     })
