@@ -37,12 +37,12 @@ export class ReleaseTracker {
   }
 
   async fetchReleases(tags: string[]) {
+    const owner = this.config.repository.split('/')[0]
+    const repoName = this.config.repository.split('/').slice(1).join('/')
+
     const { results, errors } = await PromisePool.withConcurrency(2)
       .for(tags)
       .process(async tag => {
-        const owner = this.config.repository.split('/')[0]
-        const repoName = this.config.repository.split('/').slice(1).join('/')
-
         core.debug(`Fetched release: ${tag}`)
 
         const release = await this.octokit.rest.repos.getReleaseByTag({
@@ -99,7 +99,7 @@ export class ReleaseTracker {
 
   async process() {
     const [stampedTags, githubTags] = await Promise.all([
-      this.lcSdk.getTags(),
+      this.lcSdk.getProjectTags(this.config.projectId),
       this.fetchAllTags()
     ])
 

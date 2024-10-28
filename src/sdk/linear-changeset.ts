@@ -21,6 +21,13 @@ export type LinearChangesetSdkReleaseIssuesBody = InferOutput<
   typeof LinearChangesetSdkReleaseIssuesBody
 >
 
+type GetProjectVersionsResponse = {
+  releases: {
+    appName: string
+    version: string
+  }[]
+}
+
 export class LinearChangesetSdk {
   constructor(private readonly url: string) {}
 
@@ -37,20 +44,24 @@ export class LinearChangesetSdk {
     })
   }
 
-  async getTags(): Promise<string[]> {
-    core.info(`Fetching tags from ${this.url}/api/release/tags`)
+  async getProjectTags(projectId: string): Promise<string[]> {
+    const url = new URL(`${this.url}/api/release/versions`)
 
-    const response = await fetch(`${this.url}/api/release/tags`, {
+    url.searchParams.append('projectId', projectId)
+
+    core.info(`Fetching tags from ${url.toString()}`)
+
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     })
 
-    const json = (await response.json()) as { tags: string[] }
+    const json = (await response.json()) as GetProjectVersionsResponse
 
-    json.tags.forEach(tag => {
-      core.info(`Found tag: ${tag}`)
+    json.releases.forEach(r => {
+      core.info(`Found tag: ${r.appName} ${r.version}`)
     })
 
-    return json.tags
+    return json.releases.map(r => `${r.appName}@${r.version}`)
   }
 }
