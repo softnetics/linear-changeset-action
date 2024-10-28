@@ -13,10 +13,11 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "npx ncc build src/index.ts -o dist --source-map --license licenses.txt",
     "test": "vitest",
     "format:check": "npx prettier --check .",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "local-action": "npx local-action . src/main.ts .env"
   },
   "license": "MIT",
   "dependencies": {
@@ -43,7 +44,6 @@
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",
     "ts-jest": "^29.2.4",
-    "tsup": "^8.3.5",
     "typescript": "^5.6.3",
     "vitest": "^2.1.3"
   },

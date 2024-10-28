@@ -1,12 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2022",
     "module": "ESNext",
     "rootDir": "./src",
     "moduleResolution": "Bundler",
-    "baseUrl": "./src",
+    "baseUrl": "./",
+    "sourceMap": true,
     "outDir": "./dist",
+    "noImplicitAny": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
