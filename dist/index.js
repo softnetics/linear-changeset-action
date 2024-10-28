@@ -44236,8 +44236,8 @@ const LinearChangesetSdkReleaseIssuesBody = object({
     projectId: string(),
     apps: array(object({
         appName: string(),
+        version: string(),
         issues: array(object({
-            version: string(),
             issueId: string(),
             url: string()
         }))
@@ -44312,6 +44312,15 @@ function chunk_IEE7G5JG_f(t,i){let o=i.length-t.length;if(o===1){let[n,...r]=i;r
 
 ;// CONCATENATED MODULE: ./node_modules/.pnpm/remeda@2.16.0/node_modules/remeda/dist/chunk-BYFE4FDX.js
 function d(...e){return chunk_IEE7G5JG_f(chunk_BYFE4FDX_f,e)}function chunk_BYFE4FDX_f(e){if(e.length===0)return o;let n=new Map;for(let r of e)n.set(r,(n.get(r)??0)+1);return r=>{let t=n.get(r);return t===void 0||t===0?{done:!1,hasNext:!0,next:r}:(n.set(r,t-1),s)}}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/remeda@2.16.0/node_modules/remeda/dist/chunk-K26VP6CL.js
+function u(t,n,a){let o=r=>t(r,...n);return a===void 0?o:Object.assign(o,{lazy:a,lazyArgs:n})}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/remeda@2.16.0/node_modules/remeda/dist/chunk-RAAYCPUM.js
+function chunk_RAAYCPUM_u(r,n,a){let o=r.length-n.length;if(o===0)return r(...n);if(o===1)return u(r,n,a);throw new Error("Wrong number of arguments")}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/remeda@2.16.0/node_modules/remeda/dist/chunk-EY6FDC22.js
+function chunk_EY6FDC22_o(...e){return chunk_RAAYCPUM_u(chunk_EY6FDC22_s,e)}function chunk_EY6FDC22_s(e,n){if(n<1)throw new RangeError(`chunk: A chunk size of '${n.toString()}' would result in an infinite array`);if(e.length===0)return[];if(n>=e.length)return[[...e]];let i=Math.ceil(e.length/n),u=new Array(i);if(n===1)for(let[r,t]of e.entries())u[r]=[t];else for(let r=0;r<i;r+=1){let t=r*n;u[r]=e.slice(t,t+n)}return u}
 
 ;// CONCATENATED MODULE: ./src/release.ts
 
@@ -44404,10 +44413,22 @@ class ReleaseTracker {
             return;
         }
         const releases = await this.fetchReleases(filterredTags);
-        await this.lcSdk.releaseIssues({
-            projectId: this.config.projectId,
-            apps: releases
-        });
+        for (const release of releases) {
+            core.info(`Releasing issues for ${release.appName}@${release.version}`);
+            const batches = chunk_EY6FDC22_o(release.issues, 20);
+            for (const batch of batches) {
+                await this.lcSdk.releaseIssues({
+                    projectId: this.config.projectId,
+                    apps: [
+                        {
+                            appName: release.appName,
+                            version: release.version,
+                            issues: batch
+                        }
+                    ]
+                });
+            }
+        }
     }
 }
 

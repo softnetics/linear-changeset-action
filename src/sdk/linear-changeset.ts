@@ -6,9 +6,9 @@ const LinearChangesetSdkReleaseIssuesBody = object({
   apps: array(
     object({
       appName: string(),
+      version: string(),
       issues: array(
         object({
-          version: string(),
           issueId: string(),
           url: string()
         })

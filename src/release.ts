@@ -120,9 +120,23 @@ export class ReleaseTracker {
 
     const releases = await this.fetchReleases(filterredTags)
 
-    await this.lcSdk.releaseIssues({
-      projectId: this.config.projectId,
-      apps: releases
-    })
+    for (const release of releases) {
+      core.info(`Releasing issues for ${release.appName}@${release.version}`)
+
+      const batches = R.chunk(release.issues, 20)
+
+      for (const batch of batches) {
+        await this.lcSdk.releaseIssues({
+          projectId: this.config.projectId,
+          apps: [
+            {
+              appName: release.appName,
+              version: release.version,
+              issues: batch
+            }
+          ]
+        })
+      }
+    }
   }
 }
