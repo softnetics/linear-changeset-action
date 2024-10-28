@@ -111,7 +111,7 @@ export class ReleaseTracker {
     console.log('stampedTags', stampedTags)
     console.log('githubTags', githubTags)
 
-    const filterredTags = R.difference(stampedTags, githubTags)
+    const filterredTags = R.difference(githubTags, stampedTags)
 
     if (filterredTags.length <= 0) {
       core.info('No tags to stamp to Linear')

@@ -44398,7 +44398,7 @@ class ReleaseTracker {
         ]);
         console.log('stampedTags', stampedTags);
         console.log('githubTags', githubTags);
-        const filterredTags = d(stampedTags, githubTags);
+        const filterredTags = d(githubTags, stampedTags);
         if (filterredTags.length <= 0) {
             core.info('No tags to stamp to Linear');
             return;
