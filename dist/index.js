@@ -44266,6 +44266,10 @@ class LinearChangesetSdk {
             headers: { 'Content-Type': 'application/json' }
         });
         const json = (await response.json());
+        if (!json.releases) {
+            core.info(`No tags found`);
+            return [];
+        }
         json.releases.forEach(r => {
             core.info(`Found tag: ${r.appName} ${r.version}`);
         });
@@ -44326,7 +44330,13 @@ class ReleaseTracker {
         this.octokit = new Octokit({ auth: config.token });
     }
     async fetchAllTags() {
-        const response = await this.octokit.request(`GET /repos/${this.config.repository}/git/ref/tags`);
+        const owner = this.config.repository.split('/')[0];
+        const repoName = this.config.repository.split('/').slice(1).join('/');
+        const response = await this.octokit.rest.git.listMatchingRefs({
+            owner: owner,
+            repo: repoName,
+            ref: 'tags'
+        });
         const tags = response.data.map(tag => tag.ref.replace('refs/tags/', ''));
         return tags;
     }
