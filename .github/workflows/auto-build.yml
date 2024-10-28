@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Auto Build
 
 on:
   pull_request:
@@ -47,6 +47,15 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Check Format
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
 
       - name: Build
         run: pnpm build
