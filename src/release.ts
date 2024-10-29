@@ -130,16 +130,30 @@ export class ReleaseTracker {
         core.info(`Sending batch of ${batch.length} issues`)
         core.info(`Issues: ${JSON.stringify(batch, null, 2)}`)
 
-        await this.lcSdk.releaseIssues({
-          projectId: this.config.projectId,
-          apps: [
-            {
-              appName: release.appName,
-              version: release.version,
-              issues: batch
-            }
-          ]
-        })
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const response = await this.lcSdk.releaseIssues({
+            projectId: this.config.projectId,
+            apps: [
+              {
+                appName: release.appName,
+                version: release.version,
+                issues: batch
+              }
+            ]
+          })
+
+          if (response.ok) {
+            core.info(
+              `Successfully released issues for ${release.appName}@${release.version}`
+            )
+            break
+          } else {
+            core.error(
+              `Failed to release issues for ${release.appName}@${release.version}`
+            )
+            core.error(`Response: ${JSON.stringify(response)}`)
+          }
+        }
       }
     }
   }

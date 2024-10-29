@@ -31,13 +31,11 @@ type GetProjectVersionsResponse = {
 export class LinearChangesetSdk {
   constructor(private readonly url: string) {}
 
-  async releaseIssues(
-    body: LinearChangesetSdkReleaseIssuesBody
-  ): Promise<void> {
+  async releaseIssues(body: LinearChangesetSdkReleaseIssuesBody) {
     core.info(`Sending release issues to ${this.url}/api/release/issues`)
     core.info(`Body: ${JSON.stringify(body)}`)
 
-    await fetch(`${this.url}/api/release/issues`, {
+    return await fetch(`${this.url}/api/release/issues`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)

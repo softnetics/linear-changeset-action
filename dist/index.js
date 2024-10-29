@@ -44251,7 +44251,7 @@ class LinearChangesetSdk {
     async releaseIssues(body) {
         core.info(`Sending release issues to ${this.url}/api/release/issues`);
         core.info(`Body: ${JSON.stringify(body)}`);
-        await fetch(`${this.url}/api/release/issues`, {
+        return await fetch(`${this.url}/api/release/issues`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -44420,16 +44420,26 @@ class ReleaseTracker {
             for (const batch of batches) {
                 core.info(`Sending batch of ${batch.length} issues`);
                 core.info(`Issues: ${JSON.stringify(batch, null, 2)}`);
-                await this.lcSdk.releaseIssues({
-                    projectId: this.config.projectId,
-                    apps: [
-                        {
-                            appName: release.appName,
-                            version: release.version,
-                            issues: batch
-                        }
-                    ]
-                });
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    const response = await this.lcSdk.releaseIssues({
+                        projectId: this.config.projectId,
+                        apps: [
+                            {
+                                appName: release.appName,
+                                version: release.version,
+                                issues: batch
+                            }
+                        ]
+                    });
+                    if (response.ok) {
+                        core.info(`Successfully released issues for ${release.appName}@${release.version}`);
+                        break;
+                    }
+                    else {
+                        core.error(`Failed to release issues for ${release.appName}@${release.version}`);
+                        core.error(`Response: ${JSON.stringify(response)}`);
+                    }
+                }
             }
         }
     }
